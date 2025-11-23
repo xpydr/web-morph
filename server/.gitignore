@@ -1,0 +1,22 @@
+# Bytecode caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env/
+
+# Other
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
+.pyre/
