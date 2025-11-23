@@ -9,7 +9,7 @@ function FileUploader() {
   const serverUrl = "https://webmorph-server-605ae8044504.herokuapp.com" // prod
 
   useEffect(() => {
-    fetch(serverUrl + "files/supported-formats")
+    fetch(serverUrl + "/files/supported-formats")
       .then(res => res.json())
       .then(data => {
         setFormats(data.formats);
