@@ -5,9 +5,11 @@ function FileUploader() {
   const [convertTo, setConvertTo] = useState("");
   const [formats, setFormats] = useState<string[]>([]);
   const [downloadUrl, setDownloadUrl] = useState<string>("");
+  // const serverUrl = "http://127.0.0.1:8000" // dev
+  const serverUrl = "https://webmorph-server-605ae8044504.herokuapp.com" // prod
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/files/supported-formats")
+    fetch(serverUrl + "files/supported-formats")
       .then(res => res.json())
       .then(data => {
         setFormats(data.formats);
@@ -23,7 +25,7 @@ function FileUploader() {
     formData.append("convert_to", convertTo);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/files/upload", {
+      const response = await fetch(serverUrl + "/files/upload", {
         method: "POST",
         body: formData
       });
