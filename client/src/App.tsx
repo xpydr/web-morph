@@ -5,7 +5,9 @@ function App() {
 
   return (
     <>
-      <FileUploader />
+      <div className='font-mono bg-black min-h-screen text-white'>
+        <FileUploader />
+      </div>
     </>
   )
 }
