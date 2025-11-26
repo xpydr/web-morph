@@ -1,2 +1,12 @@
 
-/* @import "tailwindcss"; */
+@import "tailwindcss";
+
+button:hover, section:hover {
+  cursor: pointer;
+  border: 1px solid cyan;
+  transition: 150ms;
+}
+
+select:hover {
+  cursor: pointer;
+}
