@@ -7,8 +7,10 @@ from app.routes.formats import router as formats_router
 app = FastAPI(title="WebMorph")
 
 origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    # "http://localhost:5173",
+    # "http://127.0.0.1:5173",
+    "https://webmorph-client-1pm63eyfs-xpydrs-projects.vercel.app",
+    "https://webmorph-client.vercel.app",
 ]
 
 app.add_middleware(
@@ -17,6 +19,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"]
 )
 
 app.include_router(formats_router, prefix="/files")

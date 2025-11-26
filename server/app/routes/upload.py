@@ -1,23 +1,48 @@
 
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query
 from fastapi.responses import StreamingResponse
-from app.utils.file_conversion import convert_file
+from typing import List
+import io, zipfile
+
+from app.utils.file_conversion import convert_file, FORMAT_MAP
 
 router = APIRouter()
 
 @router.post("/upload")
-async def upload_file(file: UploadFile = File(...), convert_to: str = "jpg"):
-    contents = await file.read()
+async def upload_files(files: List[UploadFile] = File(...), convert_to: str = Query(...)):
+    print(convert_to)
+    convert_to_lower = convert_to.lower()
+    if convert_to_lower not in FORMAT_MAP:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid format: {convert_to}. Choose from: {', '.join(FORMAT_MAP.keys())}"
+        )
 
-    converted_bytes = convert_file(contents, convert_to)
-    if not converted_bytes:
-        raise HTTPException(status_code=400, detail="Invalid file or unsupported format")
+    zip_buffer = io.BytesIO()
 
-    original_name = file.filename.rsplit(".", 1)[0]  # remove original extension
-    new_filename = f"{original_name}.{convert_to.lower()}"
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for file in files:
+            if not file.filename:
+                continue  # skip empty
+
+            contents = await file.read()
+            converted = convert_file(contents, convert_to_lower)
+
+            if converted is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Cannot convert {file.filename} (invalid or unsupported image)"
+                )
+
+            name_no_ext = file.filename.rsplit(".", 1)[0]
+            new_filename = f"{name_no_ext}.{convert_to_lower}"
+            zipf.writestr(new_filename, converted)
+
+    zip_buffer.seek(0)
 
     return StreamingResponse(
-        converted_bytes,
-        media_type="application/octet-stream",
-        headers={"Content-Disposition": f"attachment; filename={new_filename}"}
+        iter(lambda: zip_buffer.read(8192), b""),
+        media_type="application/zip",
+        headers={"Content-Disposition": "attachment; filename=converted_files.zip"}
     )
+    

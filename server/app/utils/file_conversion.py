@@ -1,8 +1,7 @@
 
 from PIL import Image, UnidentifiedImageError
-from io import BytesIO
+import io
 
-# Full Pillow saveable format mapping
 FORMAT_MAP = {
     "jpg": "JPEG",
     "jpeg": "JPEG",
@@ -26,17 +25,37 @@ FORMAT_MAP = {
     "spider": "SPIDER",
 }
 
-def convert_file(file_bytes: bytes, convert_to: str) -> BytesIO | None:
+def convert_file(file_bytes: bytes, convert_to: str) -> bytes | None:
+    convert_to = convert_to.lower()
+    if convert_to not in FORMAT_MAP:
+        return None
+
+    pillow_format = FORMAT_MAP[convert_to]
+
     try:
-        img = Image.open(BytesIO(file_bytes)).convert("RGB")
-    except UnidentifiedImageError:
-        return None  # Not a valid image
+        img = Image.open(io.BytesIO(file_bytes))
 
-    pil_format = FORMAT_MAP.get(convert_to.lower())
-    if not pil_format:
-        return None  # Unsupported format
+        # Special handling for JPEG (no alpha channel)
+        if pillow_format == "JPEG":
+            if img.mode in ("RGBA", "LA", "P"):
+                background = Image.new("RGB", img.size, (255, 255, 255)) # white background
+                if img.mode == "P":
+                    img = img.convert("RGBA")
+                background.paste(img, mask=img.split()[-1] if img.mode in ("RGBA", "LA") else None)
+                img = background
+            elif img.mode != "RGB":
+                img = img.convert("RGB")
 
-    output = BytesIO()
-    img.save(output, format=pil_format)
-    output.seek(0)
-    return output
+        output = io.BytesIO()
+        save_kwargs = {}
+        
+        # Some formats need extra parameters
+        if pillow_format == "JPEG":
+            save_kwargs["quality"] = 95
+            save_kwargs["optimize"] = True
+
+        img.save(output, format=pillow_format, **save_kwargs)
+        return output.getvalue()
+
+    except (UnidentifiedImageError, OSError, ValueError, Exception):
+        return None
