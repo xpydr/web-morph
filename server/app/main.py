@@ -9,8 +9,7 @@ app = FastAPI(title="WebMorph")
 origins = [
     # "http://localhost:5173",
     # "http://127.0.0.1:5173",
-    "https://webmorph-client-1pm63eyfs-xpydrs-projects.vercel.app",
-    "https://webmorph-client.vercel.app",
+    "https://webmorph.vercel.app"
 ]
 
 app.add_middleware(
