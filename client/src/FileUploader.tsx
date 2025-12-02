@@ -91,14 +91,14 @@ function FileUploader() {
             ))}
           </select>
         </div>
-        <button onClick={handleUpload} className="border rounded p-2 m-2 bg-cyan-800">Upload & Convert</button>
+        <button onClick={handleUpload} className="border rounded p-2 m-2 bg-cyan-700">Convert</button>
       </div>
       <Dropzone onDrop={(acceptedFiles) => setFiles(acceptedFiles)}>
         {({ getRootProps, getInputProps }) => (
-          <section className="border box-border rounded p-24 m-24  min-w-xl">
+          <section className="border box-border rounded m-24 min-w-xl">
             <div {...getRootProps()}>
               <input {...getInputProps()} />
-              <p>Drag & drop files here, or click to select</p>
+              <p className="p-24">Drag & drop files here, or click to select</p>
             </div>
           </section>
         )}
